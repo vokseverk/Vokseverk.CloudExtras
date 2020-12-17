@@ -25,25 +25,25 @@ A deploy script for copying the frontend build to the UmbracoCloud site
 
 We usually start a project with the [vokseverk/project-template](template) repository and rename the project folder, so we will end up with this structure:
 
-	[sitename]
-	  [sitename.Frontend]
+	sitename/
+	  sitename.Frontend/
 
 Then at some point we'll clone down the UmbracoCloud project into a sitename.Web
 folder, so we get this (the sitename.Web is its own repository - ignored from 
 the outer repository):
 
-	[sitename]
-	  [sitename.Frontend]
-	  [sitename.Web]
+	sitename/
+	  sitename.Frontend/
+	  sitename.Web/
 
 And then we'll add this project inside as well:
 
-	[sitename]
-	  [sitename.Core]
-	    [App_Code]
-	    [Config]
-	  [sitename.Frontend]
-	  [sitename.Web]
+	sitename/
+	  sitename.Core/
+	    App_Code/
+	    Config/
+	  sitename.Frontend/
+	  sitename.Web/
 	    Vokseverk.Web.live.config
 	  DEPLOY.sh
 
