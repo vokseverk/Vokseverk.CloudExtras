@@ -91,5 +91,6 @@ fi
 # Copy code files & configs from CORE_DIR
 cp $CORE_DIR/App_Code/*.cs $WEB_DIR/App_Code
 cp $CORE_DIR/Config/*.config $WEB_DIR/Config
-cp $CORE_DIR/*.xdt.config $WEB_DIR
+
+xsltproc -o $WEB_DIR/Vokseverk.Web.xdt.config $CORE_DIR/lib/transform.xslt $CORE_DIR/Transforms/Vokseverk.Web.xdt.config
 
