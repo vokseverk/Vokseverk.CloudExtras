@@ -1,14 +1,14 @@
-using Umbraco;
-using Umbraco.Web;
-using Umbraco.Core.Models;
 using System;
-using System.Web;
-using System.Web.Mvc;
-using System.Net;
+using System.Collections.Generic;
+using System.Linq;
 using System.Text.RegularExpressions;
+using System.Web;
 using System.Xml;
 using System.Xml.XPath;
-
+using Umbraco.Core.Models;
+using Umbraco.Core.Models.PublishedContent;
+using Umbraco.Web;
+	
 namespace Vokseverk {
 	
 	public class Helpers {
@@ -37,90 +37,19 @@ namespace Vokseverk {
 			doc.LoadXml(string.Format("<error>{0}</error>", ex.ToString()));
 			return doc.CreateNavigator().Select("/error");
 		}
-
+		
 		#endregion
 		
 		#region Public Methods
-
-		/// <summary>
-		/// Simple (very) Markdown parsing for headers etc.
-		/// Currently handles *emphasis* and **strong emphasis**
-		/// </summary>
-		/// <param name="text">The string to parse</param>
-		public static HtmlString Markdownify(string text) {
-			var patternStrong = @"\*\*([^\*]+)\*\*";
-			var replaceStrong = "<strong>$1</strong>";
-
-			var patternEmph = @"\*([^\*]+)\*";
-			var replaceEmph = "<em>$1</em>";
-			
-			var strongRE = new Regex(patternStrong);
-			var emphRE = new Regex(patternEmph);
-			
-			var parsed = strongRE.Replace(text, replaceStrong);
-			parsed = emphRE.Replace(parsed, replaceEmph);
-			
-			return new HtmlString(parsed);
-		}
-
 		
-		public static HtmlString DataMarkup(string text) {
-			var patternData = @"\*([^\*]+)\*";
-			var replaceData = "</p><data>$1</data><p>";
-			var dataRE = new Regex(patternData);
-			
-			var parsed = dataRE.Replace(text, replaceData);
-			
-			return new HtmlString(parsed);
-		}
-
 		/// <summary>
-		/// Converts a token string inside text to HTML breaks
+		/// Returns a string identifying which Umbraco Cloud environment the site is running,
+		/// e.g., `live` or `development`.
 		/// </summary>
-		/// <param name="text">The string to to parse</param>
-		/// <param name="token">The string to look for and replace with a break</param>
-		public static HtmlString ReplaceTokenWithLineBreak(string text, string token) {
-			var replaced = text.Replace(token, "<br/>");
-			return new HtmlString(replaced);
+		public static string GetCurrentEnvironment() {
+			return GetSiteSetting("@environment", true);
 		}
-
-		/// <summary>
-		/// Wraps a portion of a string as an HTML link to the specied link.
-		/// </summary>
-		/// <param name="text">The string to parse</param>
-		/// <param name="url">A URL/link to insert into the result</param>
-		public static HtmlString Linkify(string text, string url) {
-			var patternWrap = @"\*([^\*]+)\*";
-			var replaceWrap = "<a href=\"" + url + "\">$1</a>";
-			
-			var wrapRE = new Regex(patternWrap);
-			var parsed = wrapRE.Replace(text, replaceWrap);
-			
-			return new HtmlString(parsed);
-		}
-
-		/// <summary>
-		/// Strips the characters that are used with the Linkify() helper
-		/// (to show the string unlinked, somewhere).
-		/// </summary>
-		/// <param name="text">The string to clean characters from</param>
-		public static string UnLinkify(string text) {
-			return text.Replace("*", "");
-		}
-
-		/// <summary>
-		/// Format a date value for use in frontend
-		/// </summary>
-		public static string PrettifyDate(DateTime date, string format = "DEFAULT") {
-			string prettyDate = date.ToString("d. MMMM yyyy");
-			
-			if (format != "DEFAULT") {
-				prettyDate = date.ToString(format);
-			}
-			
-			return prettyDate;
-		}
-
+		
 		/// <summary>
 		/// Get a single setting from the current environment as a string
 		/// </summary>
@@ -158,32 +87,6 @@ namespace Vokseverk {
 			return settingValue;
 		}
 		
-		public static HtmlString GetInjections(string position) {
-			XmlDocument settingsDoc = GetSettings();
-			XmlNode settings = settingsDoc.DocumentElement;
-			
-			string searchPath = string.Empty;
-			string settingValue = string.Empty;
-
-			string xpath = "Injections/inject[@position = '" + position + "']";
-			
-			string environment = GetCurrentEnvironment();
-			searchPath = string.Format("Settings[@for = '{0}']/{1}", environment, xpath);
-			
-			var injections = settings.SelectNodes(searchPath);
-			
-			foreach (XmlNode injection in injections) { 
-				if (injection.FirstChild != null && injection.FirstChild.Name == "script") {
-					settingValue += "<script>" + injection.InnerText + "</script>";
-				} else {
-					settingValue += injection.InnerXml;
-				}
-			}
-			
-			// Return a HtmlString
-			return new HtmlString(settingValue);
-		}
-		
 		/// <summary>
 		/// Gets the path for the current assets folder
 		/// </summary>
@@ -204,32 +107,34 @@ namespace Vokseverk {
 		}
 		
 		/// <summary>
-		/// Returns a string identifying which Umbraco Cloud environment the site is running,
-		/// e.g., `live` or `development`.
+		/// Returns <paramref name="count" /> random children from the <paramref name="parent"/>.
 		/// </summary>
-		public static string GetCurrentEnvironment() {
-			return GetSiteSetting("@environment", true);
-		}
-		
-		// TODO: Do we need this?
-		public static string GetBodyClass(string doctypeAlias) {
-			string classes = "";
-			switch (doctypeAlias) {
-				case "One":
-					classes += " one";
-					break;
-				case "Two":
-					classes += " two";
-					break;
-				case "Other":
-					classes += " other";
-					break;
-				default:
-					classes += "";
-					break;
+		/// <param name="parent">The node to get children from</param>
+		/// <param name="count">The number of random nodes to return</param>
+		public static IEnumerable<IPublishedContent> GetRandomContent(IPublishedContent parent, int count = 1) {
+			var randomContent = Enumerable.Empty<IPublishedContent>();
+			
+			if (parent != null && count >= 1) {
+				randomContent = GetRandomContent(parent.Children, count);
 			}
 			
-			return classes.Trim();
+			return randomContent;
+		}
+
+		/// <summary>
+		/// Returns <paramref name="count" /> random elements from the <paramref name="collection"/>.
+		/// </summary>
+		/// <param name="collection">The collection to get elements from</param>
+		/// <param name="count">The number of random elements to return</param>
+		public static IEnumerable<IPublishedContent> GetRandomContent(IEnumerable<IPublishedContent> collection, int count = 1) {
+			var randomContent = Enumerable.Empty<IPublishedContent>();
+			var random = new Random();
+			
+			if (collection != null && count >= 1) {
+				randomContent = collection.OrderBy(x => random.Next()).Take(count);
+			}
+			
+			return randomContent;
 		}
 		
 		#endregion
