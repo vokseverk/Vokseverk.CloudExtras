@@ -25,7 +25,7 @@ _transform_ the transform from its initial state into the final transform file).
 
 ## How we use this
 
-We usually start a project with the [vokseverk/project-template](template) repository and rename the project folder, so we will end up with this structure:
+We usually start a project with the [vokseverk/project-template][template] repository and rename the project folder, so we will end up with this structure:
 
 	sitename/
 	  sitename.Frontend/
