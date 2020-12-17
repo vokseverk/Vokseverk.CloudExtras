@@ -59,7 +59,7 @@ Or by using the `subtree` command like this:
 
 ```bash
 git remote add -f EXTRAS https://github.com/vokseverk/Vokseverk.CloudExtras.git
-git subtree add --prefix sitename.Core EXTRAS master --squash
+git subtree add --prefix sitename.Core EXTRAS main --squash
 ```
 
 [template]: https://github.com/vokseverk/project-template/
