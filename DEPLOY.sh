@@ -15,14 +15,20 @@ CLOUD_ENV="development"
 
 DEBUG=yes
 
+if [[ $PROJECT_SHORTNAME = "PROJECT_FOLDER_NAME" ]]; then
+	echo "You must rename the PROJECT_SHORTNAME environment variable!"
+	exit 1
+fi
+
 # ================================================ #
 
 WEB_DIR="$PROJECT_ROOT/$PROJECT_SHORTNAME.Web" # The Umbraco Cloud cloned site
 FRONTEND_DIR="$PROJECT_ROOT/$PROJECT_SHORTNAME.Frontend" # The frontend files
+CORE_DIR="$PROJECT_ROOT/$PROJECT_SHORTNAME.Core" # The Core source files
 
-# Get current asset versions from SiteSettings.config in WEB_DIR
-ASSETS_VERSION=`xmllint --xpath "/SiteSettings/Settings[@for='${CLOUD_ENV}']/assetsFolder/text()" ${WEB_DIR}/Config/SiteSettings.config`
-ICONS_VERSION=`xmllint --xpath "/SiteSettings/Settings[@for='${CLOUD_ENV}']/iconsVersion/text()" ${WEB_DIR}/Config/SiteSettings.config`
+# Get current asset versions from SiteSettings.config in CORE_DIR
+ASSETS_VERSION=`xmllint --xpath "/SiteSettings/Settings[@for='${CLOUD_ENV}']/assetsFolder/text()" ${CORE_DIR}/Config/SiteSettings.config`
+ICONS_VERSION=`xmllint --xpath "/SiteSettings/Settings[@for='${CLOUD_ENV}']/iconsVersion/text()" ${CORE_DIR}/Config/SiteSettings.config`
 
 echo "Found $ASSETS_VERSION + $ICONS_VERSION"
 
@@ -81,3 +87,9 @@ if [[ -e "$FRONTEND_DIR/websiteicons" ]]; then
 	cp $FRONTEND_DIR/websiteicons/*.xml $WEB_DIR
 	cp $FRONTEND_DIR/websiteicons/*.ico $WEB_DIR
 fi
+
+# Copy code files & configs from CORE_DIR
+cp $CORE_DIR/App_Code/*.cs $WEB_DIR/App_Code
+cp $CORE_DIR/Config/*.config $WEB_DIR/Config
+cp $CORE_DIR/*.xdt.config $WEB_DIR
+
