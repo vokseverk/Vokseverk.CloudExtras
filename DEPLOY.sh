@@ -1,14 +1,16 @@
-# Read the assetsFolder setting from the SiteSettings.config file
-# TODO: Find a way to increment the value
-# Create a new assets/AxBx/ folder in the .Web project
-# Copy the build/assets/ folder from the .Frontend project into the new folder in the .Web project
+# 1. Read the assetsFolder setting from the SiteSettings.config file
+# 2. Create a new assets/AxBx/ folder in the .Web project
+# 3. Copy the build/assets/ folder from the .Frontend project into the new folder in the .Web project
+# 4. Copy misc. .Core files to .Web project
 
+#
 # TODO: Update PROJECT_SHORTNAME below
+#
 
 # Configuration variables
 
-PROJECT_SHORTNAME="PROJECT_FOLDER_NAME"
 PROJECT_ROOT="$TM_PROJECT_DIRECTORY"
+PROJECT_SHORTNAME="PROJECT_FOLDER_NAME"
 
 # We usually take the development environment's setting
 CLOUD_ENV="development"
