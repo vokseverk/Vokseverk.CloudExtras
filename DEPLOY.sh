@@ -92,5 +92,5 @@ fi
 cp $CORE_DIR/App_Code/*.cs $WEB_DIR/App_Code
 cp $CORE_DIR/Config/*.config $WEB_DIR/Config
 
-xsltproc -o $WEB_DIR/Vokseverk.Web.xdt.config $CORE_DIR/lib/transform.xslt $CORE_DIR/Transforms/Vokseverk.Web.xdt.config
+xsltproc -o $WEB_DIR/Vokseverk.Web.xdt.config $CORE_DIR/Transforms/transformer.xslt $CORE_DIR/Transforms/Vokseverk.Web.xdt.config
 
