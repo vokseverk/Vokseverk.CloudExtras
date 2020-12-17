@@ -1,27 +1,83 @@
-# Set these one
-UAAS=path/to/project.Web
-ASSETS=path/to/project.Frontend/build/assets
+# Read the assetsFolder setting from the SiteSettings.config file
+# TODO: Find a way to increment the value
+# Create a new assets/AxBx/ folder in the .Web project
+# Copy the build/assets/ folder from the .Frontend project into the new folder in the .Web project
 
-# Get current version from SiteSettings.config
-BUILD=`xmllint --xpath '/SiteSettings/Settings[1]/assetsFolder/text()' ${UAAS}/Config/SiteSettings.config`
+# TODO: Update PROJECT_SHORTNAME below
 
-echo "Build version is '$BUILD'."
+# Configuration variables
 
-# Copy assets to Umbraco Cloud repo if the build version exists
-# by removing it first and then copying clean assets.
-if [[ -e "${UAAS}/assets/${BUILD}" ]]; then
+PROJECT_SHORTNAME="PROJECT_FOLDER_NAME"
+PROJECT_ROOT="$TM_PROJECT_DIRECTORY"
 
-	# Cleanup
-	rm -rf "${UAAS}/assets/${BUILD}"
+# We usually take the development environment's setting
+CLOUD_ENV="development"
+
+DEBUG=yes
+
+# ================================================ #
+
+WEB_DIR="$PROJECT_ROOT/$PROJECT_SHORTNAME.Web" # The Umbraco Cloud cloned site
+FRONTEND_DIR="$PROJECT_ROOT/$PROJECT_SHORTNAME.Frontend" # The frontend files
+
+# Get current asset versions from SiteSettings.config in WEB_DIR
+ASSETS_VERSION=`xmllint --xpath "/SiteSettings/Settings[@for='${CLOUD_ENV}']/assetsFolder/text()" ${WEB_DIR}/Config/SiteSettings.config`
+ICONS_VERSION=`xmllint --xpath "/SiteSettings/Settings[@for='${CLOUD_ENV}']/iconsVersion/text()" ${WEB_DIR}/Config/SiteSettings.config`
+
+echo "Found $ASSETS_VERSION + $ICONS_VERSION"
+
+DEPLOY_DIR="$WEB_DIR/assets/$ASSETS_VERSION"
+ICONS_DIR="$WEB_DIR/$ICONS_VERSION"
+
+BUILD_DIR="$FRONTEND_DIR/build"
+
+if [[ $DEBUG == yes ]]; then
+	echo "Deploying to $DEPLOY_DIR"
+fi
+
+# Remove the DEPLOY_DIR if it exists already
+if [[ -e "$DEPLOY_DIR" ]]; then
+	echo "Removing existing builds"
+	rm -rf "$DEPLOY_DIR"
+	rm -rf "$ICONS_DIR"
+fi
+
+# Create the DEPLOY_DIR and ICONS_DIR
+echo "Create new $ASSETS_VERSION dir"
+mkdir -p "$DEPLOY_DIR/fonts"
+mkdir -p "$ICONS_DIR"
+
+# Copy assets
+echo "Copy asset files"
+cp $BUILD_DIR/assets/*.* "$DEPLOY_DIR"
+
+# Copy fonts
+if [[ -d $BUILD_DIR/assets/fonts ]]; then
+	echo "Copy font files"
+	cp $BUILD_DIR/assets/fonts/*.* "$DEPLOY_DIR/fonts"
+fi
+
+if [[ -d "$BUILD_DIR/views" ]]; then
+	# Move the "Element" partials first
+	# if [[ -e $BUILD_DIR/views/*Block.cshtml ]]; then
+		echo "Copy block partials"
+		mv $BUILD_DIR/views/*Block.cshtml "$WEB_DIR/Views/Partials/Blocks" 2> /dev/null
+	# fi
 	
-	mkdir "${UAAS}/assets/${BUILD}"
-	
-	# Copy assets to the build directory
-	cp $ASSETS/*.* $UAAS/assets/$BUILD
+	# Then move the rest
+	# if [[ -e $BUILD_DIR/views/*.cshtml ]]; then
+		echo "Copy remaining (component) partials"
+		mv $BUILD_DIR/views/*.cshtml "$WEB_DIR/Views/Partials/Components" 2> /dev/null
+	# fi
+fi
 
-else
-	
-	# Notify that there's no build directory yet
-	echo "$UAAS does not have a '$BUILD' directory."
-	
+if [[ -e "$FRONTEND_DIR/websiteicons" ]]; then
+	echo "Copy icons to ICONS_DIR"
+	cp $FRONTEND_DIR/websiteicons/*.png $ICONS_DIR
+	cp $FRONTEND_DIR/websiteicons/*.json $ICONS_DIR
+	# cp $FRONTEND_DIR/websiteicons/*.svg $ICONS_DIR
+
+	echo "Copy favicon and browserconfig to root"
+	cp $FRONTEND_DIR/websiteicons/*.xml $WEB_DIR
+	cp $FRONTEND_DIR/websiteicons/*.ico $WEB_DIR
 fi
