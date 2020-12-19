@@ -63,5 +63,14 @@ rm -rf sitename.Core/.git
 ```
 
 
+## My head hurts - why do you _transform_ the transform file??
+
+Glad you asked :)
+
+It's done mainly to enable having a few "variables" to fill in for new projects.
+At the top of the file you'll see a few _entities_ that define these. This is a built-in feature of XML, so if you open the XML file in a browser that does the initial parsing, these will already have been replaced wherever they're being used in the file. So doing what's called an "identity transform" will replace these right away and leave us with a "clean" XML file, as if we'd done a search and replace for these.
+
+If all the tools that work with `.config` (and thus, `.xdt.config`) files were all reading them using a conforming XML parser initially, I wouldn't even need to do this - but I don't trust this to be the case, so I'm just making sure the best way I can :)
+
 [template]: https://github.com/vokseverk/project-template/
 
