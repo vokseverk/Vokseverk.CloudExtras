@@ -21,13 +21,22 @@
 			<xsl:apply-templates select="* | text() | comment()" />
 		</xsl:copy>
 	</xsl:template>
-	
+
+	<!--
+	Entities are not parsed or replaced in comments,
+	but we'd actually like this specific one to be,
+	so we're doing a manual replace.
+	-->
 	<xsl:template match="comment()">
 		<xsl:comment>
 			<xsl:value-of select="str:replace(., '&amp;hostname;', $hostname)" />
 		</xsl:comment>
 	</xsl:template>
 	
+	<!--
+	The pattern string should (technically) have dots escaped,
+	which is what we're doing here.
+	-->
 	<xsl:template match="rule/conditions/add[@input = '{HTTP_HOST}']">
 		<add input="{@input}" pattern="{str:replace(@pattern, '.', '\.')}" />
 	</xsl:template>
