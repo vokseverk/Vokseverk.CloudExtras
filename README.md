@@ -30,9 +30,7 @@ We usually start a project with the [vokseverk/project-template][template] repos
 	sitename/
 	  sitename.Frontend/
 
-Then at some point we'll clone down the Umbraco Cloud project into a sitename.Web
-folder, so we get this (the sitename.Web is its own repository - ignored from 
-the outer repository):
+Then at some point we'll clone down the Umbraco Cloud project into a `sitename.Web` folder, so we get this structure (the `sitename.Web` is its own repository - ignored from the outer repository):
 
 	sitename/
 	  sitename.Frontend/
@@ -49,18 +47,21 @@ And then we'll add this project inside as the `sitename.Core` folder:
 	  sitename.Web/
 	  DEPLOY.sh
 
-This can be done either by specifying the foldername when cloning:
-
-```bash
-git clone https://github.com/vokseverk/Vokseverk.CloudExtras.git sitename.Core
-```
-
-Or by using the `subtree` command like this:
+We use the `subtree` command to do this:
 
 ```bash
 git remote add -f EXTRAS https://github.com/vokseverk/Vokseverk.CloudExtras.git
 git subtree add --prefix sitename.Core EXTRAS main --squash
 ```
+
+Alternatively, this can be done by specifying the foldername when cloning,
+and then subsequently removing the `.git` folder inside):
+
+```bash
+git clone https://github.com/vokseverk/Vokseverk.CloudExtras.git sitename.Core
+rm -rf sitename.Core/.git
+```
+
 
 [template]: https://github.com/vokseverk/project-template/
 
