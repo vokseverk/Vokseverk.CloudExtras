@@ -271,6 +271,27 @@ namespace Vokseverk {
 			return outputUrl;
 		}
 		
+		public static HtmlString RenderSVGInline(string filename) {
+			string toReturn = string.Empty;
+			try {
+				var mediaPath = Helpers.GetAssetPath(filename);
+				
+				if (!string.IsNullOrWhiteSpace(mediaPath)) {
+					string path = HttpContext.Current.Server.MapPath(mediaPath);
+					if (System.IO.File.Exists(path)) {
+						toReturn = System.IO.File.ReadAllText(path);
+						if (!string.IsNullOrWhiteSpace(toReturn) && toReturn.IndexOf("<svg") > 0) {
+							toReturn = toReturn.Substring(toReturn.IndexOf("<svg"));
+						}
+					}
+				}
+			} catch (Exception ex) {
+				return new HtmlString("<span style=\"background:#f998;color:#000;\">" + ex.ToString() + "</span>");
+			}
+			
+			return new HtmlString(toReturn);
+		}
+		
 		public static HtmlString RenderSVG(string reference, int width = 70, int height = 70) {
 			string name = "";
 			string svgTag = "";
