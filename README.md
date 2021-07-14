@@ -7,6 +7,11 @@ Some C# helpers for use in Razor views:
 - Vokseverk.Helpers.cs
 - Vokseverk.MediaHelper.cs
 
+Two XSLT files used by the MediaHelper to render SVGs:
+
+- svgIcon.xslt
+- svgInlineIcon.xslt
+
 A config file with settings for the site across all environments (+ transforms):
 
 - SiteSettings.config

@@ -94,6 +94,9 @@ fi
 cp $CORE_DIR/App_Code/*.cs $WEB_DIR/App_Code
 cp $CORE_DIR/Config/*.config $WEB_DIR/Config
 
+# Copy the XSLT files for rendering icons (unless they already exist)
+cp -n $CORE_DIR/xslt/*.xslt $WEB_DIR/xslt
+
 # Transform (as in XSLT transform) the config transform into place
 xsltproc -o $WEB_DIR/Vokseverk.Web.live.xdt.config $CORE_DIR/Transforms/transformer.xslt $CORE_DIR/Transforms/Vokseverk.Web.live.xdt.config
 
